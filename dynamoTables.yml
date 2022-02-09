@@ -1,0 +1,26 @@
+Resources:
+    StateTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: StateTable
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: S
+          - AttributeName: s3Key
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+        - IndexName: keyGSI
+          KeySchema:
+          - AttributeName: s3Key
+            KeyType: HASH
+          ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST

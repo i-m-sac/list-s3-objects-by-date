@@ -1,0 +1,22 @@
+{
+  "name": "list-s3-objects-by-date",
+  "version": "1.0.0",
+  "description": "Serverless function to list S3 objects by date",
+  "main": "serverless.yml",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/i-m-sac/list-s3-objects-by-date.git"
+  },
+  "author": "Sac <itssach.in>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/i-m-sac/list-s3-objects-by-date/issues"
+  },
+  "homepage": "https://github.com/i-m-sac/list-s3-objects-by-date#readme",
+  "dependencies": {
+    "aws-sdk": "^2.1071.0"
+  }
+}

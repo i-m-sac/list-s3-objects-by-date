@@ -1,0 +1,14 @@
+service: s3-fetcher
+provider:
+  name: aws
+  region: ${file(./serverless.env.yml):${opt:stage}.AWS_REGION}
+  role: AWSLambdaExecutionRole
+  versionFunctions: false
+  tracing:
+    lambda: true
+custom: ${file(./serverless.env.yml):${opt:stage}}
+functions:
+    - ${file(./lambdaFunctions.yml)}
+resources:
+    - ${file(./resources.yml)}
+    - ${file(./dynamoTables.yml)}

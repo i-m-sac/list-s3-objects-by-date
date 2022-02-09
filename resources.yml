@@ -1,0 +1,33 @@
+Resources:
+  AWSLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LambdaExecutionRole-${opt:stage}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: S3Access-${opt:stage}
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - "s3:PutObject"
+                Effect: Allow
+                Resource:
+                  - arn:aws:s3:::${self:custom.BUCKET_NAME}
+        - PolicyName: CloudWatchLogsAccess-${opt:stage}
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Effect: Allow
+                Resource:
+                  - "arn:aws:logs:${file(./serverless.env.yml):${opt:stage}.AWS_REGION}:${file(./serverless.env.yml):${opt:stage}.AWS_ACCOUNT_ID}:*"

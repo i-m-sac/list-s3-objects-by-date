@@ -1,0 +1,11 @@
+s3QueryLambda:
+  handler: resolvers/index.queryS3
+  name: ${opt:stage}-queryS3
+  description: Lambda function to query S3
+  runtime: nodejs14.x
+  timeout: 300
+  maximumRetryAttempts: 0
+  environment: 
+    STAGE: ${opt:stage}
+    S3_BUCKET: ${self:custom.BUCKET_NAME}
+
