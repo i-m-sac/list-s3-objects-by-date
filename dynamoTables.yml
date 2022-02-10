@@ -9,7 +9,33 @@ Resources:
           - AttributeName: id
             AttributeType: S
           - AttributeName: timestamp
+            AttributeType: N
+          - AttributeName: s3Key
             AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        GlobalSecondaryIndexes:
+        - IndexName: keyGSI
+          KeySchema:
+          - AttributeName: s3Key
+            KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+    ProcessedFilesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ProcessedFilesTable
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: N
           - AttributeName: s3Key
             AttributeType: S
         KeySchema:

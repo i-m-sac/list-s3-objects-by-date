@@ -32,3 +32,13 @@ Resources:
                 Effect: Allow
                 Resource:
                   - "arn:aws:logs:${file(./serverless.env.yml):${opt:stage}.AWS_REGION}:${file(./serverless.env.yml):${opt:stage}.AWS_ACCOUNT_ID}:*"
+        - PolicyName: DynamoDBAccess-${opt:stage}
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Action:
+                  - "dynamodb:*"
+                Effect: Allow
+                Resource:
+                  - "arn:aws:dynamodb:${file(./serverless.env.yml):${opt:stage}.AWS_REGION}:${file(./serverless.env.yml):${opt:stage}.AWS_ACCOUNT_ID}:table/*"
+                  - "arn:aws:dynamodb:${file(./serverless.env.yml):${opt:stage}.AWS_REGION}:${file(./serverless.env.yml):${opt:stage}.AWS_ACCOUNT_ID}:table/*/*"
