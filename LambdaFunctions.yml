@@ -1,5 +1,5 @@
 s3QueryLambda:
-  handler: resolvers/index.queryS3
+  handler: lambdaResolvers/index.queryS3
   name: ${opt:stage}-queryS3
   description: Lambda function to query S3
   runtime: nodejs14.x

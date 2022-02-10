@@ -16,10 +16,11 @@ Resources:
             Version: "2012-10-17"
             Statement:
               - Action:
-                  - "s3:PutObject"
+                  - "s3:*"
                 Effect: Allow
                 Resource:
                   - arn:aws:s3:::${self:custom.BUCKET_NAME}
+                  - arn:aws:s3:::${self:custom.BUCKET_NAME}/*
         - PolicyName: CloudWatchLogsAccess-${opt:stage}
           PolicyDocument:
             Version: "2012-10-17"
