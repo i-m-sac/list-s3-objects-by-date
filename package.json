@@ -18,6 +18,7 @@
   "homepage": "https://github.com/i-m-sac/list-s3-objects-by-date#readme",
   "dependencies": {
     "aws-sdk": "^2.1071.0",
+    "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "uuid-by-string": "^3.0.6"
   }
