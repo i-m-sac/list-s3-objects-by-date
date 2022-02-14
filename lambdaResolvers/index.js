@@ -2,7 +2,6 @@ const AWS = require('aws-sdk')
 const s3 = new AWS.S3()
 const ddbClient = new AWS.DynamoDB.DocumentClient()
 const moment = require('moment')
-const internal = require('stream')
 const uuidByString = require('uuid-by-string')
 const _ = require('lodash')
 
@@ -12,7 +11,8 @@ module.exports.queryS3 = async (event, context) => {
     Bucket: process.env.S3_BUCKET,
     MaxKeys: 2
   }
-  const [startAfterKey, interval] = await Promise.all([getStartAfterKey(), getItervalToProcess()])
+  const [startAfterKey] = await Promise.all([getStartAfterKey()])
+  let interval = {}
   if (startAfterKey) query.StartAfter = startAfterKey
   let hasNextPage = true
   let iteration = 1
@@ -25,7 +25,11 @@ module.exports.queryS3 = async (event, context) => {
       query.StartAfter = response.Contents[response.Contents.length - 1].Key
       await addS3ContentsToDDb(response.Contents.filter(content => {
         const epochTimestamp = +new Date(content.LastModified)
-        return (epochTimestamp > interval.startTime && epochTimestamp < internal.endTime)
+        if (interval && interval.startTime) {
+          return (epochTimestamp > interval.startTime && epochTimestamp < interval.endTime)
+        } else {
+          return true
+        }
       }))
     } else {
       hasNextPage = false
@@ -47,7 +51,7 @@ module.exports.queryS3 = async (event, context) => {
 
 const addS3ContentsToDDb = async (items, tableName = 'ProcessedFilesTable') => {
   items = items.map(item => { return { id: uuidByString(item.Key), s3Key: item.Key, timestamp: +new Date(item.LastModified) } })
-  const chunks = _.chunks(items, 20)
+  const chunks = _.chunk(items, 20)
   for (const chunk of chunks) {
     const payload = {
       RequestItems: {
@@ -83,10 +87,12 @@ const getItervalToProcess = async () => {
   }
 }
 
-function getStateItem (id) {
+async function getStateItem (id) {
   const query = {
-    Key: id,
+    Key: { id },
     TableName: 'StateTable'
   }
-  return ddbClient.getItem(query).promise()
+  return ddbClient.get(query).promise().catch(err => {
+    console.log('Err in get Item ', JSON.stringify({ query, err }))
+  })
 }
