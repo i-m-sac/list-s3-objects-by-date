@@ -4,6 +4,7 @@ const ddbClient = new AWS.DynamoDB.DocumentClient()
 const moment = require('moment')
 const uuidByString = require('uuid-by-string')
 const _ = require('lodash')
+var lambda = new AWS.Lambda();
 
 module.exports.queryS3 = async (event, context) => {
   console.log('Event received to lambda', event)
@@ -95,4 +96,14 @@ async function getStateItem (id) {
   return ddbClient.get(query).promise().catch(err => {
     console.log('Err in get Item ', JSON.stringify({ query, err }))
   })
+}
+
+async function invokeLambda () {
+  if (process.env.invokeLambas !== 'allowed') { return false }
+  const params = {
+    FunctionName: `${process.env.stage}-queryS3`, // the lambda function we are going to invoke
+    InvocationType: 'Event',
+    Payload: ''
+  };
+  return lambda.invoke(params).promise()  
 }
