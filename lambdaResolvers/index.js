@@ -116,7 +116,7 @@ async function getS3ItemsMetadata (items) {
   for (const chunk of chunks) {
     const promises = []
     chunk.forEach(item => {
-      promises.push(s3.headObject({ Bucket: process.env.S3_BUCKET, Key: item.Key }).promise())
+      promises.push(getS3ItemMetadata(item.Key))
     })
     const response = await Promise.all(promises).catch(err => {
       console.log('Err in fetching object metadata', { err })
@@ -124,4 +124,17 @@ async function getS3ItemsMetadata (items) {
     metadataArr.push(...response)
   }
   return metadataArr
+}
+
+async function getS3ItemMetadata (key) {
+  const params = {
+    Key: key,
+    Bucket: process.env.S3_BUCKET
+  }
+  const response = await s3.headObject(params).promise().catch(err => {
+    console.log('Err while fetching item metadat', { key, err })
+    return null
+  })
+  response.Key = key
+  return response
 }
