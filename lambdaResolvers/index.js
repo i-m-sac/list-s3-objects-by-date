@@ -23,15 +23,17 @@ module.exports.queryS3 = async (event, context) => {
     console.log('Response ' + iteration++, response)
     if (response?.Contents?.length) {
       hasNextPage = response.IsTruncated
-      query.StartAfter = response.Contents[response.Contents.length - 1].Key
-      await addS3ContentsToDDb(response.Contents.filter(content => {
+      response.Contents = response.Contents.filter(content => {
         const epochTimestamp = +new Date(content.LastModified)
         if (interval && interval.startTime) {
           return (epochTimestamp > interval.startTime && epochTimestamp < interval.endTime)
         } else {
           return true
         }
-      }))
+      })
+      const itemsMetadata = await getS3ItemsMetadata(response.Contents)
+      query.StartAfter = response.Contents[response.Contents.length - 1].Key
+      await addS3ContentsToDDb(itemsMetadata)
     } else {
       hasNextPage = false
     }
@@ -106,4 +108,20 @@ async function invokeLambda () {
     Payload: ''
   };
   return lambda.invoke(params).promise()  
+}
+
+async function getS3ItemsMetadata (items) {
+  const chunks = _.chunk(items, 20)
+  const metadataArr = []
+  for (const chunk of chunks) {
+    const promises = []
+    chunk.forEach(item => {
+      promises.push(s3.headObject({ Bucket: process.env.S3_BUCKET, Key: item.Key }).promise())
+    })
+    const response = await Promise.all(promises).catch(err => {
+      console.log('Err in fetching object metadata', { err })
+    })
+    metadataArr.push(...response)
+  }
+  return metadataArr
 }
